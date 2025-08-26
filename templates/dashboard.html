@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Your Stats</h2>
+        <p class="mb-1"><strong>Points:</strong> {{ points }}</p>
+
+        {# --- Simple rank calculation in-template based on points --- #}
+        {% if points < 50 %}
+          {% set rank = "Beginner ⚽" %}
+          {% set next = "Rookie 🥉" %}
+          {% set cur = 0 %}{% set nxt = 50 %}
+        {% elif points < 150 %}
+          {% set rank = "Rookie 🥉" %}
+          {% set next = "Amateur 🏃" %}
+          {% set cur = 50 %}{% set nxt = 150 %}
+        {% elif points < 300 %}
+          {% set rank = "Amateur 🏃" %}
+          {% set next = "Semi-Pro 🎯" %}
+          {% set cur = 150 %}{% set nxt = 300 %}
+        {% elif points < 500 %}
+          {% set rank = "Semi-Pro 🎯" %}
+          {% set next = "Pro Player ⚡" %}
+          {% set cur = 300 %}{% set nxt = 500 %}
+        {% elif points < 800 %}
+          {% set rank = "Pro Player ⚡" %}
+          {% set next = "Elite 🥈" %}
+          {% set cur = 500 %}{% set nxt = 800 %}
+        {% elif points < 1200 %}
+          {% set rank = "Elite 🥈" %}
+          {% set next = "All-Star ⭐" %}
+          {% set cur = 800 %}{% set nxt = 1200 %}
+        {% elif points < 1700 %}
+          {% set rank = "All-Star ⭐" %}
+          {% set next = "Captain 🧢" %}
+          {% set cur = 1200 %}{% set nxt = 1700 %}
+        {% elif points < 2300 %}
+          {% set rank = "Captain 🧢" %}
+          {% set next = "Veteran 🦾" %}
+          {% set cur = 1700 %}{% set nxt = 2300 %}
+        {% elif points < 3000 %}
+          {% set rank = "Veteran 🦾" %}
+          {% set next = "Champion 🏆" %}
+          {% set cur = 2300 %}{% set nxt = 3000 %}
+        {% elif points < 4000 %}
+          {% set rank = "Champion 🏆" %}
+          {% set next = "Master 🥇" %}
+          {% set cur = 3000 %}{% set nxt = 4000 %}
+        {% elif points < 5200 %}
+          {% set rank = "Master 🥇" %}
+          {% set next = "Grandmaster 🔥" %}
+          {% set cur = 4000 %}{% set nxt = 5200 %}
+        {% elif points < 6500 %}
+          {% set rank = "Grandmaster 🔥" %}
+          {% set next = "Icon 🐐" %}
+          {% set cur = 5200 %}{% set nxt = 6500 %}
+        {% elif points < 8000 %}
+          {% set rank = "Icon 🐐" %}
+          {% set next = "Legend 🌟" %}
+          {% set cur = 6500 %}{% set nxt = 8000 %}
+        {% elif points < 10000 %}
+          {% set rank = "Legend 🌟" %}
+          {% set next = "Hall of Fame 🏅" %}
+          {% set cur = 8000 %}{% set nxt = 10000 %}
+        {% elif points < 12500 %}
+          {% set rank = "Hall of Fame 🏅" %}
+          {% set next = "Immortal 🪄" %}
+          {% set cur = 10000 %}{% set nxt = 12500 %}
+        {% elif points < 15000 %}
+          {% set rank = "Immortal 🪄" %}
+          {% set next = "Soccer God 👑" %}
+          {% set cur = 12500 %}{% set nxt = 15000 %}
+        {% else %}
+          {% set rank = "Soccer God 👑" %}
+          {% set next = None %}
+          {% set cur = 15000 %}{% set nxt = 15000 %}
+        {% endif %}
+
+        <p class="mb-1"><strong>Rank:</strong> {{ rank }}</p>
+        {% if next %}
+          {% set progress = (points - cur) %}
+          {% set needed = (nxt - cur) %}
+          <p class="mb-1"><strong>Next:</strong> {{ next }}</p>
+          <div class="progress" role="progressbar" aria-label="Progress to next rank" aria-valuemin="0" aria-valuemax="{{ needed }}" aria-valuenow="{{ progress }}">
+            <div class="progress-bar" style="width: {{ (progress / needed * 100) if needed else 0 }}%"></div>
+          </div>
+          <small class="text-muted">{{ progress }}/{{ needed }} points to next rank</small>
+        {% else %}
+          <div class="alert alert-success mt-2 mb-0">Max rank reached! 🌟</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Add Training</h2>
+        <form method="post" action="{{ url_for('log_training') }}">
+          <div class="mb-3">
+            <label class="form-label">Minutes</label>
+            <input type="number" min="1" class="form-control" name="minutes" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select class="form-select" name="training_type">
+              <option>Dribbling</option>
+              <option>Shooting</option>
+              <option>Cardio</option>
+              <option>Strength</option>
+              <option>Juggling</option>
+              <option>Match</option>
+              <option>Recovery</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <button class="btn btn-primary">Log it</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Recent Logs</h2>
+        {% if logs %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th>Date</th><th>Type</th><th>Minutes</th></tr></thead>
+            <tbody>
+              {% for ttype, minutes, date in logs %}
+                <tr>
+                  <td>{{ date }}</td>
+                  <td>{{ ttype }}</td>
+                  <td>{{ minutes }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <p class="text-muted mb-0">No logs yet — add your first session!</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

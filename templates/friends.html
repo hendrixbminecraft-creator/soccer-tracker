@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Add a Friend</h2>
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">Friend's Email</label>
+            <input type="email" class="form-control" name="email" placeholder="friend@example.com" required>
+          </div>
+          <button class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Your Friends</h2>
+        {% if friends %}
+          <ul class="list-group">
+            {% for f in friends %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ f.email }}
+                <form method="post" action="{{ url_for('remove_friend', friend_user_id=f.id) }}">
+                  <button class="btn btn-outline-danger btn-sm">Remove</button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No friends yet. Add someone by email.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
